@@ -5,5 +5,4 @@ COPY . .
 RUN apk update && apk add py3-pip
 RUN pip install Flask
 EXPOSE 8080
-ENV ODOO_URL= PGADMIN_URL=
 ENTRYPOINT ["python", "app.py"]
