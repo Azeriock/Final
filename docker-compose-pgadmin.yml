@@ -5,9 +5,9 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - ODOO_URL: ${ODOO_URL}
-      - PGADMIN_URL: ${PGADMIN_URL}
-      - version: ${version}
+      ODOO_URL: ${ODOO_URL}
+      PGADMIN_URL: ${PGADMIN_URL}
+      version: ${version}
     networks:
       - odoo-network
 networks:
