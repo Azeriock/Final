@@ -7,7 +7,6 @@ services:
     environment:
       ODOO_URL: ${ODOO_URL}
       PGADMIN_URL: ${PGADMIN_URL}
-      version: ${version}
     networks:
       - odoo-network
 networks:
