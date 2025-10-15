@@ -1,0 +1,29 @@
+---
+- name: Créer le répertoire de déploiement
+  file:
+    path: "{{ deploy_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Déployer le fichier docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ deploy_path }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Déployer le fichier .env
+  template:
+    src: .env.j2
+    dest: "{{ deploy_path }}/.env"
+    owner: root
+    group: root
+    mode: '0600'
+
+- name: Démarrer le stack Docker Compose
+  command:
+    cmd: docker compose up -d
+    chdir: "{{ deploy_path }}"

@@ -1,0 +1,5 @@
+---
+- name: Restart ic_webapp
+  command:
+    cmd: docker compose restart
+    chdir: "{{ deploy_path }}"

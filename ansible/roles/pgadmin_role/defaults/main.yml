@@ -1,0 +1,28 @@
+---
+# Variables par défaut pour le rôle ic_webapp
+
+# Nom du projet Docker Compose
+compose_project_name: ic_webapp
+
+# Dossier de déploiement
+deploy_path: /opt/ic_webapp
+
+# Nom du réseau Docker
+docker_network: odoo-network
+
+# Nom du volume
+docker_volume: ic-data
+
+# Nom du service dans le docker-compose
+service_name: web
+
+# Nom du conteneur et de l'image
+container_name: ic-webapp
+image_name: azeriock/ic-webapp:1.0
+
+# Ports exposés
+webapp_port: "8080"
+
+# Variables d'environnement
+ODOO_URL: "https://odoo.com"
+PGADMIN_URL: "https://pgadmin.org"

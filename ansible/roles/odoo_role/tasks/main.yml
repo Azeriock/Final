@@ -1,0 +1,29 @@
+- name: Créer le répertoire de déploiement
+  file:
+    path: "{{ deploy_path }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Créer le répertoire local de stockage des données si défini
+  file:
+    path: "{{ local_data_path }}"
+    state: directory
+    owner: 1000  # odoo
+    group: 1000  # odoo
+    mode: '0755'
+
+- name: Générer le fichier docker-compose.yml
+  template:
+    src: docker-compose.yml.j2
+    dest: "{{ deploy_path }}/docker-compose.yml"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Lancer le docker compose up -d
+  become: true
+  command: docker compose up -d
+  args:
+    chdir: "{{ deploy_path }}"

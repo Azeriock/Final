@@ -1,0 +1,17 @@
+services:
+  {{ service_name }}:
+    container_name: {{ container_name }}
+    image: {{ image_name }}
+    ports:
+      - "{{ webapp_port }}:8080"
+    environment:
+      ODOO_URL: {{ ODOO_URL }}
+      PGADMIN_URL: {{ PGADMIN_URL }}
+    networks:
+      - {{ docker_network }}
+
+networks:
+  {{ docker_network }}: {}
+
+volumes:
+  {{ docker_volume }}:
