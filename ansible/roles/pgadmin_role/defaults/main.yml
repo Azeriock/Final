@@ -1,28 +1,12 @@
 ---
-# Variables par défaut pour le rôle ic_webapp
-
-# Nom du projet Docker Compose
-compose_project_name: ic_webapp
-
-# Dossier de déploiement
-deploy_path: /opt/ic_webapp
-
-# Nom du réseau Docker
-docker_network: odoo-network
-
-# Nom du volume
-docker_volume: ic-data
-
-# Nom du service dans le docker-compose
-service_name: web
-
-# Nom du conteneur et de l'image
-container_name: ic-webapp
-image_name: azeriock/ic-webapp:1.0
-
-# Ports exposés
-webapp_port: "8080"
-
-# Variables d'environnement
-ODOO_URL: "https://odoo.com"
-PGADMIN_URL: "https://pgadmin.org"
+# defaults file for pgadmin_role
+pgadmin_data_volume: pgadmin_data
+pgadmin_network: ic_network_pgadmin
+pg_admin_email: loicpierret@live.fr
+pg_admin_password: odoo_pgadmin_password
+pgadmin_service_name: pgadmin
+pgadmin_container_name: pgadmin
+pg_admin_init_config_name: docker_postgres
+pg_admin_init_config_group: docker_postgres_group
+pg_admin_init_config_host: postgres
+pg_admin_init_config_username: odoo_user

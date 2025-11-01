@@ -1,29 +1,15 @@
 ---
-- name: Créer le répertoire de déploiement
-  file:
-    path: "{{ deploy_path }}"
-    state: directory
-    owner: root
-    group: root
-    mode: '0755'
-
-- name: Déployer le fichier docker-compose.yml
+- name: "Generation du docker-compose file"
   template:
-    src: docker-compose.yml.j2
-    dest: "{{ deploy_path }}/docker-compose.yml"
-    owner: root
-    group: root
-    mode: '0644'
+    src: "docker-compose-pgadmin.yml.j2"
+    dest: /home/{{ ansible_user }}/docker-compose-pgadmin.yml
+    mode: 0655
 
-- name: Déployer le fichier .env
+- name: "Generation du fichier de conf initial de pgadmin "
   template:
-    src: .env.j2
-    dest: "{{ deploy_path }}/.env"
-    owner: root
-    group: root
-    mode: '0600'
+    src: "servers.json.j2"
+    dest: /home/{{ ansible_user }}/servers.json
+    mode: 0655
 
-- name: Démarrer le stack Docker Compose
-  command:
-    cmd: docker compose up -d
-    chdir: "{{ deploy_path }}"
+- name: "Déploiement du docker-compose-pgadmin.yml"
+  command: "docker-compose -f /home/{{ ansible_user }}/docker-compose-pgadmin.yml up -d"

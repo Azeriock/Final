@@ -1,0 +1,58 @@
+services:
+  web:
+    container_name: ic-webapp
+    image: azeriock/ic-webapp:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      ODOO_URL: ${ODOO_URL}
+      PGADMIN_URL: ${PGADMIN_URL}
+    networks:
+      - odoo-network
+  odoo:
+    container_name: odoo
+    image: odoo:17.0
+    depends_on:
+      - postgres
+    ports:
+      - "8069:8069"
+    networks:
+      - odoo-network
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+    environment:
+      - HOST=postgres
+      - USER=odoo
+      - PASSWORD=myodoo
+  postgres:
+    container_name: bdd-odoo
+    image: postgres:15
+    networks:
+      - odoo-network
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=myodoo
+      - POSTGRES_USER=odoo
+    volumes:
+      - db-data:/var/lib/postgresql/data
+  pgadmin:
+    container_name: pgadmin
+    image: dpage/pgadmin4
+    networks:
+        - odoo-network
+    environment:
+        - 'PGADMIN_DEFAULT_EMAIL=loicpierret@live.fr'
+        - 'PGADMIN_DEFAULT_PASSWORD=odoo_password'
+    ports:
+        - "80:80"
+    volumes:
+#       - ${PWD}/servers.json:/pgadmin4/servers.json
+        - 'pgadmin_data:/var/lib/pgadmin'
+networks:
+  odoo-network:
+    driver: bridge
+    name: odoo-network
+volumes:
+  ic-data:
+  pgadmin_data:
+  odoo-web-data:

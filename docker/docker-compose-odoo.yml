@@ -1,0 +1,31 @@
+services:
+  odoo:
+    container_name: odoo
+    image: odoo:17.0
+    depends_on:
+      - mydb
+    ports:
+      - "8069:8069"
+    networks:
+      - odoo-network
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+    environment:
+      - HOST=postgres
+      - USER=odoo
+      - PASSWORD=myodoo
+  postgres:
+    container_name: bdd-odoo
+    image: postgres:15
+    networks:
+      - odoo-network
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=myodoo
+      - POSTGRES_USER=odoo
+    volumes:
+      - db-data:/var/lib/postgresql/data
+networks:
+  odoo-network: {}
+volumes:
+  db-data:

@@ -1,0 +1,15 @@
+services:
+  web:
+    container_name: ic-webapp
+    image: azeriock/ic-webapp:1.0
+    ports:
+      - "8080:8080"
+    environment:
+      ODOO_URL: ${ODOO_URL}
+      PGADMIN_URL: ${PGADMIN_URL}
+    networks:
+      - pgadmin-network
+networks:
+  pgadmin-network: {}
+volumes:
+  ic-data:

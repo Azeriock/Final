@@ -1,0 +1,171 @@
+def cleanupDocker() {
+    sh '''
+    echo "🧹 Nettoyage Docker en cours..."
+    docker compose down --remove-orphans || true
+    docker ps -aq | xargs -r docker rm -f || true
+    docker volume prune -f || true
+    docker network prune -f || true
+    docker system prune -f || true
+    '''
+}
+
+pipeline {
+    agent any
+
+    environment {
+        // Variables globales
+        ANSIBLE_DIR = "ansible"
+        IMAGE_NAME = "ic-webapp"
+        DOCKERHUB_ID = "azeriock"
+        DOCKERHUB_PASSWORD = credentials('dockerhub_password')
+        ANSIBLE_IMAGE_AGENT = "registry.gitlab.com/robconnolly/docker-ansible:latest"
+    }
+
+        // Clonage du dépôt
+        stage('Checkout') {
+            steps {
+                echo "📦 Clonage du dépôt"
+                checkout scm
+            }
+        }
+
+        // Construction des images Docker
+        stage('Build Docker Images') {
+            steps {
+                script {
+                    // 🔍 Récupérer le tag Git ou, si absent, le hash du commit
+                    def gitTag = sh(returnStdout: true, script: 'git describe --tags --abbrev=0 || git rev-parse --short HEAD').trim()
+                    echo "📦 Tag Git détecté : ${gitTag}"
+
+                    // 🏷️ Nom dynamique de l'image ic-webapp
+                    env.ICWEBAPP_IMAGE = "ic-webapp:${gitTag}"
+                }
+                // 🔨 Construction de l'image Docker ic-webapp
+                sh '''
+                docker build --no-cache -f ./app/Dockerfile -t ${DOCKERHUB_ID}/$ICWEBAPP_IMAGE ./app
+                '''
+            }
+        }
+
+        stage('Scan Image with  SNYK') {
+            environment{
+                SNYK_TOKEN = credentials('snyk_token')
+            }
+            steps {
+                script{
+                    sh '''
+                    echo "Starting Image scan ${DOCKERHUB_ID}/ICWEBAPP_IMAGE ..."
+                    echo There is Scan result :
+                    SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker $DOCKERHUB_ID/$ICWEBAPP_IMAGE --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
+                    echo "Scan ended"
+                    '''
+                }
+            }
+       }
+
+        // Tests techniques : Démarrage des conteneurs
+        stage('Test technique du conteneur') {
+            steps {
+                echo "🧪 Lancement des conteneurs pour tests"
+                sh '''
+                # Nettoyage préalable
+                docker ps -a | grep -i test_icwebapp && docker rm -f test_icwebapp
+
+                docker run -d --name test_icwebapp -p 8080:8080 ${DOCKERHUB_ID}/ICWEBAPP_IMAGE
+
+                echo "⏳ Attente du démarrage des services..."
+                timeout 60 bash -c 'until curl -f http://localhost:8080 >/dev/null 2>&1; do sleep 3; done'
+
+                echo "✅ Le service semble accessibles."
+                '''
+            }
+        }
+
+        stage('Cleanup before Ansible tests') {
+            steps {
+                script {
+                    docker stop test_icwebapp
+                    docker rm test_icwebapp
+                }
+            }
+        }
+
+        // Push des images vers le registre (prod uniquement)
+        stage('Push to Registry') {
+            steps {
+                echo "🚀 Push des images vers le registre Docker"
+                script {
+                sh '''
+                    echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_ID --password-stdin
+                    docker push ${DOCKERHUB_ID}/$IMAGE_NAME
+                '''
+                }
+            }
+        }
+        
+
+        // Déploiement réel sur les serveurs via Ansible
+        stage('Déploiement via Ansible') {
+            agent{
+                docker { 
+                    image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                }
+            }
+            stage ("Check all playbook syntax") {
+                steps {
+                    script {
+                        sh '''
+                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                            ansible-lint -x 306 ansible/playbooks/* || echo passing linter                                     
+                        '''
+                    }
+                }
+            }
+            stage ("PRODUCTION - Deploy pgadmin") {
+                steps {
+                    script {
+                        sh '''
+                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                            ansible-playbook ansible/playbooks/deploy-pgadmin.yml --vault-password-file vault.key  -l pg_admin
+                        '''
+                    }
+                }
+            }
+            stage ("PRODUCTION - Deploy odoo") {
+                steps {
+                    script {
+                        sh '''
+                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                            ansible-playbook ansible/playbooks/deploy-odoo.yml --vault-password-file vault.key  -l odoo
+                        '''
+                    }
+                }
+            }
+            stage ("PRODUCTION - Deploy ic-webapp") {
+                steps {
+                    script {
+                        sh '''
+                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                            ansible-playbook ansible/playbooks/deploy-ic_webapp.yml --vault-password-file vault.key  -l ic_webapp
+                        '''
+                    }
+                }
+            }
+        }
+    }
+
+    // Nettoyage systématique
+    post {
+        always {
+            script {
+                cleanupDocker()
+            }
+        }
+        success {
+            echo "🎉 Pipeline terminée avec succès !"
+        }
+        failure {
+            echo "❌ Échec de la pipeline."
+        }
+    }
+
