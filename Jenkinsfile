@@ -84,8 +84,10 @@ pipeline {
         stage('Cleanup before Ansible tests') {
             steps {
                 script {
-                    docker stop test_icwebapp
-                    docker rm test_icwebapp
+                     sh '''
+                        docker stop test_icwebapp
+                        docker rm test_icwebapp
+                    '''
                 }
             }
         }
