@@ -125,43 +125,45 @@ pipeline {
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
                 }
             }
-            stage ("Check all playbook syntax") {
-                steps {
-                    script {
-                        sh '''
-                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
-                            ansible-lint -x 306 ansible/playbooks/* || echo passing linter                                     
-                        '''
+            stages {
+                stage ("Check all playbook syntax") {
+                    steps {
+                        script {
+                            sh '''
+                                export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                                ansible-lint -x 306 ansible/playbooks/* || echo passing linter                                     
+                            '''
+                        }
                     }
                 }
-            }
-            stage ("PRODUCTION - Deploy pgadmin") {
-                steps {
-                    script {
-                        sh '''
-                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
-                            ansible-playbook ansible/playbooks/deploy-pgadmin.yml --vault-password-file vault.key  -l pg_admin
-                        '''
+                stage ("PRODUCTION - Deploy pgadmin") {
+                    steps {
+                        script {
+                            sh '''
+                                export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                                ansible-playbook ansible/playbooks/deploy-pgadmin.yml --vault-password-file vault.key  -l pg_admin
+                            '''
+                        }
                     }
                 }
-            }
-            stage ("PRODUCTION - Deploy odoo") {
-                steps {
-                    script {
-                        sh '''
-                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
-                            ansible-playbook ansible/playbooks/deploy-odoo.yml --vault-password-file vault.key  -l odoo
-                        '''
+                stage ("PRODUCTION - Deploy odoo") {
+                    steps {
+                        script {
+                            sh '''
+                                export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                                ansible-playbook ansible/playbooks/deploy-odoo.yml --vault-password-file vault.key  -l odoo
+                            '''
+                        }
                     }
                 }
-            }
-            stage ("PRODUCTION - Deploy ic-webapp") {
-                steps {
-                    script {
-                        sh '''
-                            export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
-                            ansible-playbook ansible/playbooks/deploy-ic_webapp.yml --vault-password-file vault.key  -l ic_webapp
-                        '''
+                stage ("PRODUCTION - Deploy ic-webapp") {
+                    steps {
+                        script {
+                            sh '''
+                                export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                                ansible-playbook ansible/playbooks/deploy-ic_webapp.yml --vault-password-file vault.key  -l ic_webapp
+                            '''
+                        }
                     }
                 }
             }
