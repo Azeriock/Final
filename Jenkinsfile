@@ -38,7 +38,8 @@ pipeline {
                     echo "Tag Git détecté : ${gitTag}"
 
                     // Nom dynamique de l'image ic-webapp
-                    env.ICWEBAPP_IMAGE = "ic-webapp:${gitTag}"
+                    env.ICWEBAPP_IMAGE = "ic-webapp"
+                    env.GITTAG = ${gitTag}
                 }
                 // Construction de l'image Docker ic-webapp
                 sh '''
@@ -99,7 +100,7 @@ pipeline {
                 script {
                 sh '''
                     echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_ID --password-stdin
-                    docker push ${DOCKERHUB_ID}/$IMAGE_NAME
+                    docker push ${DOCKERHUB_ID}/$IMAGE_NAME:$GITTAG
                 '''
                 }
             }
