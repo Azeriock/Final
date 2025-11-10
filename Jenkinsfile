@@ -71,10 +71,10 @@ pipeline {
                         # Nettoyage préalable
                         docker ps -a | grep -i test_icwebapp && docker rm -f test_icwebapp
 
-                        docker run -d --name test_icwebapp -p 8080:8080 ${DOCKERHUB_ID}/${ICWEBAPP_IMAGE}
+                        docker run -d --name test_icwebapp -p 8090:8080 ${DOCKERHUB_ID}/${ICWEBAPP_IMAGE}
 
                         echo "Attente du démarrage des services..."
-                        timeout 60 bash -c 'until curl -f http://localhost:8080 >/dev/null 2>&1; do sleep 3; done'
+                        timeout 60 bash -c 'until curl -f http://localhost:8090 >/dev/null 2>&1; do sleep 3; done'
 
                         echo "Le service semble accessibles."
                     '''
