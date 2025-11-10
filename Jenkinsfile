@@ -103,12 +103,40 @@ pipeline {
             }
         }
         
+        stage ('Prepare ansible environment') {
+            agent any
+            environment {
+                VAULT_KEY = credentials('vault_key')
+                PRIVATE_KEY = credentials('private_key')
+            }          
+            steps {
+                script {
+                sh '''
+                    echo $VAULT_KEY > vault.key
+                    echo $PRIVATE_KEY > id_rsa
+                    chmod 600 id_rsa
+                '''
+                }
+            }
+        }
 
         // Déploiement réel sur les serveurs via Ansible
         stage('Déploiement via Ansible') {
             agent{
                 docker { 
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
+                }
+            }
+            stage ("Ping  targeted hosts") {
+                steps {
+                    script {
+                        sh '''
+                            apt update -y
+                            apt install sshpass -y 
+                            export ANSIBLE_CONFIG=$(pwd)/sources/ansible-ressources/ansible.cfg
+                            ansible all -m ping --private-key id_rsa  -l prod
+                        '''
+                    }
                 }
             }
             stage ("Check all playbook syntax") {
@@ -168,4 +196,3 @@ pipeline {
             echo "❌ Échec de la pipeline."
         }
     }
-
