@@ -24,7 +24,7 @@ pipeline {
         // Clonage du dépôt
         stage('Checkout') {
             steps {
-                echo "📦 Clonage du dépôt"
+                echo "Clonage du dépôt"
                 checkout scm
             }
         }
@@ -33,14 +33,14 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    // 🔍 Récupérer le tag Git ou, si absent, le hash du commit
+                    // Récupérer le tag Git ou, si absent, le hash du commit
                     def gitTag = sh(returnStdout: true, script: 'git describe --tags --abbrev=0 || git rev-parse --short HEAD').trim()
-                    echo "📦 Tag Git détecté : ${gitTag}"
+                    echo "Tag Git détecté : ${gitTag}"
 
-                    // 🏷️ Nom dynamique de l'image ic-webapp
+                    // Nom dynamique de l'image ic-webapp
                     env.ICWEBAPP_IMAGE = "ic-webapp:${gitTag}"
                 }
-                // 🔨 Construction de l'image Docker ic-webapp
+                // Construction de l'image Docker ic-webapp
                 sh '''
                 docker build --no-cache -f ./app/Dockerfile -t ${DOCKERHUB_ID}/$ICWEBAPP_IMAGE ./app
                 '''
@@ -66,17 +66,17 @@ pipeline {
         // Tests techniques : Démarrage des conteneurs
         stage('Test technique du conteneur') {
             steps {
-                echo "🧪 Lancement des conteneurs pour tests"
+                echo "Lancement des conteneurs pour tests"
                 sh '''
                 # Nettoyage préalable
                 docker ps -a | grep -i test_icwebapp && docker rm -f test_icwebapp
 
                 docker run -d --name test_icwebapp -p 8080:8080 ${DOCKERHUB_ID}/ICWEBAPP_IMAGE
 
-                echo "⏳ Attente du démarrage des services..."
+                echo "Attente du démarrage des services..."
                 timeout 60 bash -c 'until curl -f http://localhost:8080 >/dev/null 2>&1; do sleep 3; done'
 
-                echo "✅ Le service semble accessibles."
+                echo "Le service semble accessibles."
                 '''
             }
         }
@@ -93,7 +93,7 @@ pipeline {
         // Push des images vers le registre (prod uniquement)
         stage('Push to Registry') {
             steps {
-                echo "🚀 Push des images vers le registre Docker"
+                echo " Push des images vers le registre Docker"
                 script {
                 sh '''
                     echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_ID --password-stdin
@@ -190,9 +190,9 @@ pipeline {
             }
         }
         success {
-            echo "🎉 Pipeline terminée avec succès !"
+            echo " Pipeline terminée avec succès !"
         }
         failure {
-            echo "❌ Échec de la pipeline."
+            echo " Échec de la pipeline."
         }
     }
