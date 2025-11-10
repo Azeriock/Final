@@ -109,7 +109,6 @@ pipeline {
             agent any
             environment {
                 VAULT_KEY = credentials('vault_key')
-                PRIVATE_KEY = credentials('private_key')
             }          
             steps {
                 script {
