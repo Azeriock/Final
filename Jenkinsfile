@@ -118,7 +118,7 @@ pipeline {
             }
         }
 
-        // Déploiement réel sur les serveurs via Ansible
+        // DDéploiement réel sur les serveurs via Ansible
         stage('Déploiement via Ansible') {
             agent{
                 docker { 
