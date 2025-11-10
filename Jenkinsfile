@@ -170,18 +170,3 @@ pipeline {
         }
     }
 
-    // Nettoyage systématique
-    post {
-        always {
-            script {
-                cleanupDocker()
-            }
-        }
-        success {
-            echo " Pipeline terminée avec succès !"
-        }
-        failure {
-            echo " Échec de la pipeline."
-        }
-    }
-}
