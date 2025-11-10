@@ -99,7 +99,7 @@ pipeline {
                 script {
                 sh '''
                     echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_ID --password-stdin
-                    docker push ${DOCKERHUB_ID}/${env.ICWEBAPP_IMAGE}
+                    docker push ${DOCKERHUB_ID}/${ICWEBAPP_IMAGE}
                 '''
                 }
             }
