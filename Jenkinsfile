@@ -39,11 +39,10 @@ pipeline {
 
                     // Nom dynamique de l'image ic-webapp
                     env.ICWEBAPP_IMAGE = "ic-webapp:${gitTag}"
-                    env.GITTAG = ${gitTag}
                 }
                 // Construction de l'image Docker ic-webapp
                 sh '''
-                docker build --no-cache -f ./app/Dockerfile -t ${DOCKERHUB_ID}/${ICWEBAPP_IMAGE} ./app
+                docker build --no-cache -f ./app/Dockerfile -t ${DOCKERHUB_ID}/${env.ICWEBAPP_IMAGE} ./app
                 '''
             }
         }
@@ -55,7 +54,7 @@ pipeline {
             steps {
                 script{
                     sh '''
-                        echo "Starting Image scan ${DOCKERHUB_ID}/${ICWEBAPP_IMAGE} ..."
+                        echo "Starting Image scan ${DOCKERHUB_ID}/${env.ICWEBAPP_IMAGE} ..."
                         echo There is Scan result :
                         SCAN_RESULT=$(docker run --rm -e SNYK_TOKEN=$SNYK_TOKEN -v /var/run/docker.sock:/var/run/docker.sock -v $(pwd):/app snyk/snyk:docker snyk test --docker $DOCKERHUB_ID/$ICWEBAPP_IMAGE --json ||  if [[ $? -gt "1" ]];then echo -e "Warning, you must see scan result \n" ;  false; elif [[ $? -eq "0" ]]; then   echo "PASS : Nothing to Do"; elif [[ $? -eq "1" ]]; then   echo "Warning, passing with something to do";  else false; fi)
                         echo "Scan ended"
@@ -72,7 +71,7 @@ pipeline {
                         # Nettoyage préalable
                         docker ps -a | grep -i test_icwebapp && docker rm -f test_icwebapp
 
-                        docker run -d --name test_icwebapp -p 8090:8080 ${DOCKERHUB_ID}/${ICWEBAPP_IMAGE}
+                        docker run -d --name test_icwebapp -p 8090:8080 ${DOCKERHUB_ID}/${env.ICWEBAPP_IMAGE}
 
                         echo "Attente du démarrage des services..."
                         timeout 60 bash -c 'until curl -f http://localhost:8090 >/dev/null 2>&1; do sleep 3; done'
@@ -100,7 +99,7 @@ pipeline {
                 script {
                 sh '''
                     echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_ID --password-stdin
-                    docker push ${DOCKERHUB_ID}/${IMAGE_NAME}:${GITTAG}
+                    docker push ${DOCKERHUB_ID}/${env.ICWEBAPP_IMAGE}
                 '''
                 }
             }
@@ -164,7 +163,7 @@ pipeline {
                         script {
                             sh '''
                                 export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
-                                ansible-playbook ansible/playbooks/deploy-ic_webapp.yml --vault-password-file vault.key  -l ic_webapp
+                                ansible-playbook ansible/playbooks/deploy-ic_webapp.yml --extra-vars 'ic_webapp_image=${DOCKERHUB_ID}/${env.ICWEBAPP_IMAGE}' --vault-password-file vault.key  -l ic_webapp
                             '''
                         }
                     }
