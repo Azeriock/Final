@@ -113,8 +113,6 @@ pipeline {
                 script {
                 sh '''
                     echo $VAULT_KEY > vault.key
-                    echo $PRIVATE_KEY > id_rsa
-                    chmod 600 id_rsa
                 '''
                 }
             }
@@ -125,18 +123,6 @@ pipeline {
             agent{
                 docker { 
                     image 'registry.gitlab.com/robconnolly/docker-ansible:latest'
-                }
-            }
-            stage ("Ping  targeted hosts") {
-                steps {
-                    script {
-                        sh '''
-                            apt update -y
-                            apt install sshpass -y 
-                            export ANSIBLE_CONFIG=$(pwd)/sources/ansible-ressources/ansible.cfg
-                            ansible all -m ping --private-key id_rsa  -l prod
-                        '''
-                    }
                 }
             }
             stage ("Check all playbook syntax") {
