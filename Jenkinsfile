@@ -106,6 +106,8 @@ pipeline {
                 script {
                 sh '''
                     echo $VAULT_KEY > vault.key
+                    apt update -y
+                    apt install sshpass -y 
                 '''
                 }
             }
