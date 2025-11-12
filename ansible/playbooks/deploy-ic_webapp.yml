@@ -1,6 +1,6 @@
 ---
 - name: Déploiement Ic_webapp
-  hosts: ic_webapp
+  hosts: ic_webapp:ic_webapp_server
   become: true
   roles:
     - pgadmin_role

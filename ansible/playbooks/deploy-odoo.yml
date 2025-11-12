@@ -1,6 +1,6 @@
 ---
 - name: Déploiement Odoo
-  hosts: odoo
+  hosts: odoo:odoo_server
   become: true
   roles:
     - odoo_role
