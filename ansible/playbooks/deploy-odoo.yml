@@ -1,6 +1,6 @@
 ---
 - name: Déploiement Odoo
-  hosts: "{{ target_env }}"
+  hosts: odoo
   become: true
   roles:
     - odoo_role

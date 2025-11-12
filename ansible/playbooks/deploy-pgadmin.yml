@@ -1,6 +1,6 @@
 ---
 - name: Déploiement PgAdmin
-  hosts: "{{ target_env }}"
+  hosts: pg_admin
   become: true
   roles:
     - pgadmin_role

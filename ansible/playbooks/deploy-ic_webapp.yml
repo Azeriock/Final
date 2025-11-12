@@ -1,6 +1,6 @@
 ---
 - name: Déploiement Ic_webapp
-  hosts: "{{ target_env }}"
+  hosts: ic_webapp
   become: true
   roles:
     - pgadmin_role
