@@ -101,13 +101,11 @@ pipeline {
             agent any
             environment {
                 VAULT_KEY = credentials('vault_key')
-            }          
+            }        
             steps {
                 script {
                 sh '''
                     echo $VAULT_KEY > vault.key
-                    apt update -y
-                    apt install sshpass -y 
                 '''
                 }
             }
@@ -127,6 +125,16 @@ pipeline {
                             sh '''
                                 export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
                                 ansible-lint -x 306 ansible/playbooks/* || echo passing linter                                     
+                            '''
+                        }
+                    }
+                }
+                stage ("Install sshpass") {
+                    steps {
+                        script {
+                            sh '''
+                                apt update -y
+                                apt install sshpass -y
                             '''
                         }
                     }
