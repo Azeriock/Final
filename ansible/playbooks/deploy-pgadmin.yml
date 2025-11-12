@@ -1,6 +1,6 @@
 ---
 - name: Déploiement PgAdmin
-  hosts: pg_admin:pg_admin_server
+  hosts: pg_admin
   become: true
   roles:
     - pgadmin_role
