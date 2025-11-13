@@ -3,10 +3,21 @@
   yum:
     name:
       - docker
+      - docker-client
       - docker-common
       - docker-selinux
       - docker-engine
       - docker-io
+    state: absent
+
+- name: Clean yum metadata
+  command: yum clean all
+  args:
+    warn: false
+
+- name: Remove yum cache
+  file:
+    path: /var/cache/yum
     state: absent
 
 - name: Install docker python
