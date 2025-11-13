@@ -14,6 +14,4 @@
 
 - name: Lancer le docker compose up -d
   become: true
-  command: docker compose up -d
-  args:
-    chdir: "/opt/{{ role_name }}"
+  command: docker compose -f /opt/{{ role_name }}/docker-compose.yml up -d
