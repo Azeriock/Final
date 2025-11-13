@@ -1,0 +1,5 @@
+---
+- hosts: prod
+  become: true
+  roles:
+    - install-docker
