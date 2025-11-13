@@ -1,4 +1,14 @@
 ---
+- name: Remove old Docker versions
+  yum:
+    name:
+      - docker
+      - docker-common
+      - docker-selinux
+      - docker-engine
+      - docker-io
+    state: absent
+
 - name: Install docker python
   pip:
     name: docker-py
