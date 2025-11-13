@@ -21,4 +21,5 @@
         name:
           - requests
           - setuptools
+          - docker
         executable: /usr/bin/pip3
