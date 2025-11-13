@@ -4,6 +4,8 @@
   become: true
   vars:
     ansible_python_interpreter: /usr/bin/python3
+  pip:
+    executable: /usr/bin/pip3
   roles:
     - ic_webapp_role
-    executable: /usr/bin/pip3
+    
