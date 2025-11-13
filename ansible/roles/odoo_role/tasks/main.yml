@@ -1,16 +1,9 @@
-- name: Créer le répertoire de déploiement
-  file:
-    path: "/home/{{ role_name }}"
-    state: directory
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0755'
-
+---
 - name: Générer le fichier docker-compose.yml
   template:
     src: odoo.yml.j2
-    dest: "/home/{{ role_name }}/docker-compose.yml"
-    mode: '0655'
+    dest: "/home/{{ ansible_user }}/docker-compose.yml"
+    mode: 0655
 
 - name: Lancer le docker compose up -d
-  command: docker compose -f /home/{{ role_name }}/docker-compose.yml up -d
+  command: docker compose -f /home/{{ ansible_user }}/docker-compose.yml up -d
