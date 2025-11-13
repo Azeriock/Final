@@ -6,4 +6,4 @@
     mode: 0655
 
 - name: Lancer le docker compose up -d
-  command: docker compose -f /home/{{ ansible_user }}/docker-compose.yml up -d
+  command: docker-compose -f /home/{{ ansible_user }}/docker-compose.yml up -d
