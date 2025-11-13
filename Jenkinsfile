@@ -149,22 +149,22 @@ pipeline {
                         }
                     }
                 }
-                stage ("PRODUCTION - Deploy odoo") {
-                    steps {
-                        script {
-                            sh '''
-                                export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
-                                ansible-playbook ansible/playbooks/deploy-odoo.yml --vault-password-file vault.key  -l odoo
-                            '''
-                        }
-                    }
-                }
                 stage ("PRODUCTION - Deploy ic-webapp") {
                     steps {
                         script {
                             sh '''
                                 export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
                                 ansible-playbook ansible/playbooks/deploy-ic_webapp.yml --extra-vars 'ic_webapp_image=${DOCKERHUB_ID}/${IMAGE_NAME}' --vault-password-file vault.key  -l ic_webapp
+                            '''
+                        }
+                    }
+                }
+                stage ("PRODUCTION - Deploy odoo") {
+                    steps {
+                        script {
+                            sh '''
+                                export ANSIBLE_CONFIG=$(pwd)/ansible/ansible.cfg
+                                ansible-playbook ansible/playbooks/deploy-odoo.yml --vault-password-file vault.key  -l odoo
                             '''
                         }
                     }
