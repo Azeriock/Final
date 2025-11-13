@@ -8,6 +8,7 @@
       - docker-selinux
       - docker-engine
       - docker-io
+      - podman-docker
     state: absent
 
 - name: Clean yum metadata
