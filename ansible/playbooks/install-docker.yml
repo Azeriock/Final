@@ -21,4 +21,4 @@
         name:
           - requests
           - setuptools
-        executable: /usr/local/bin/pip3
+        executable: /usr/bin/pip3
