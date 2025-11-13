@@ -18,4 +18,5 @@
       pip:
         name:
           - requests
+          - setuptools
         executable: /usr/local/bin/pip3
