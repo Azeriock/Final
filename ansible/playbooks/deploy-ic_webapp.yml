@@ -3,4 +3,4 @@
   hosts: ic_webapp
   become: true
   roles:
-    - pgadmin_role
+    - ic_webapp_role
