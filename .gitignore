@@ -3,6 +3,7 @@
 
 crash.log
 .terraform/
-.terraform*
-.vscode/
+.terraform.lock.hcl
 *.tfplan
+
+.vscode/
