@@ -1,72 +1,42 @@
-resource "aws_security_group" "my_sg" {
-  name        = "${var.maintainer}-sg"
-  description = "Allow http, https  and ssh inbound traffic"
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = ">= 6.0"
+    }
+  }
+}
 
-  ingress {
-    description      = "HTTP from all"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+resource "aws_security_group" "this" {
+  name        = var.name
+  description = var.description
+  vpc_id      = var.vpc_id
+
+  dynamic "ingress" {
+    for_each = var.ingress_rules
+    content {
+      from_port                = ingress.value.from_port
+      to_port                  = ingress.value.to_port
+      protocol                 = ingress.value.protocol
+      cidr_blocks              = lookup(ingress.value, "cidr_blocks", null)
+      security_groups          = lookup(ingress.value, "source_security_group_id", null) != null ? [lookup(ingress.value, "source_security_group_id", null)] : null
+      description              = lookup(ingress.value, "description", null)
+    }
   }
 
-  ingress {
-    description      = "HTTP from all"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+  dynamic "egress" {
+    for_each = var.egress_rules
+    content {
+      from_port   = egress.value.from_port
+      to_port     = egress.value.to_port
+      protocol    = egress.value.protocol
+      cidr_blocks = egress.value.cidr_blocks
+      description = lookup(egress.value, "description", null)
+    }
   }
 
-  ingress {
-    description      = "odoo from all"
-    from_port        = 8069
-    to_port          = 8069
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    description      = "ic-webapp from all"
-    from_port        = 8000
-    to_port          = 8000
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-
-  ingress {
-    description      = "pgadmin from all"
-    from_port        = 5050
-    to_port          = 5050
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-
-  ingress {
-    description      = "postgres from all"
-    from_port        = 5432
-    to_port          = 5432
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = "${var.maintainer}-sg"
-  }
+  tags = merge(
+    { "Name" = var.name },
+    var.tags
+  )
 }
