@@ -78,3 +78,47 @@ module "eks" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
 }
+
+# ==============================================================================
+# Configuration Kubernetes
+# Configure le fournisseur Kubernetes pour qu'il puisse interagir avec le
+# cluster EKS créé ci-dessus.
+# ==============================================================================
+data "aws_eks_cluster_auth" "eks_auth" {
+  name = module.eks.cluster_name
+}
+
+provider "kubernetes" {
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+  token                  = data.aws_eks_cluster_auth.eks_auth.token
+}
+
+# ==============================================================================
+# Création de l'espace de noms Kubernetes
+# Crée l'espace de noms "ic-webapp" dans lequel les ressources de l'application
+# seront déployées.
+# ==============================================================================
+resource "kubernetes_namespace_v1" "app_namespace" {
+  metadata {
+    name = "ic-webapp"
+  }
+}
+# ==============================================================================
+# Création du ConfigMap Odoo
+# Crée dynamiquement le ConfigMap pour Odoo en utilisant l'adresse de
+# l'instance RDS provisionnée par Terraform.
+# ==============================================================================
+resource "kubernetes_config_map_v1" "odoo_config" {
+  metadata {
+    name      = "odoo-config"
+    namespace = "ic-webapp"
+  }
+  depends_on = [
+    kubernetes_namespace_v1.app_namespace
+  ]
+  data = {
+    HOST = module.rds.db_instance_address # Récupération dynamique de l'adresse RDS
+    USER = module.rds.db_username        # Récupération dynamique de l'utilisateur
+  }
+}

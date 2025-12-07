@@ -3,13 +3,13 @@ kind: PersistentVolumeClaim
 metadata:
   name: pgadmin-pvc
   labels:
-    app: odoo
+    app: pg-admin
     env: prod
   namespace: ic-webapp
 spec:
-  storageClassName: manual
+  storageClassName: ebs-gp3-sc
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 5Gi

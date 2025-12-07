@@ -17,6 +17,17 @@ module "eks" {
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids
 
+  # Active la gestion de l'AWS Load Balancer Controller comme un add-on EKS.
+  # Le module créera automatiquement le rôle IAM nécessaire.
+  addons = {
+    aws-load-balancer-controller = {
+      most_recent = true # Utilise la version la plus récente de l'add-on
+    },
+    aws-ebs-csi-driver = {
+      most_recent = true # Ajout du driver EBS CSI
+    }
+  }
+
   eks_managed_node_groups = {
     main = {
       min_size     = var.node_group_min_size
@@ -30,7 +41,7 @@ module "eks" {
   tags = merge(
     {
       "Name"        = var.cluster_name
-      "Environment" = "dev" # Exemple de tag standard
+      "Environment" = "prod" # Exemple de tag standard
     },
     var.tags
   )

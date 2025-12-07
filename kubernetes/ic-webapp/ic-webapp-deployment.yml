@@ -22,9 +22,9 @@ spec:
         name: ic-webapp
         env:
         - name: ODOO_URL
-          value: http://172.28.128.32:30069/
+          value: "/"
         - name: PGADMIN_URL
-          value: http://172.28.128.32:30050/
+          value: "/pgadmin"
         ports:
         - containerPort: 8080
           name: ic-webapp

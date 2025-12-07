@@ -7,11 +7,10 @@ metadata:
     env: prod
   namespace: ic-webapp
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: pg-admin
   ports:
     - protocol: TCP
       port: 5050
       targetPort: 80
-      nodePort: 30050

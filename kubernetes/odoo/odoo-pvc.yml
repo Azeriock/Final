@@ -7,9 +7,9 @@ metadata:
     env: prod
   namespace: ic-webapp
 spec:
-  storageClassName: manual
+  storageClassName: ebs-gp3-sc
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   resources:
     requests:
       storage: 5Gi

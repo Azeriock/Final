@@ -1,0 +1,43 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ic-webapp-ingress
+  namespace: ic-webapp
+  annotations:
+    # Spécifie que cet Ingress doit être géré par le AWS Load Balancer Controller
+    kubernetes.io/ingress.class: alb
+
+    # Crée un ALB public (accessible depuis Internet)
+    alb.ingress.kubernetes.io/scheme: internet-facing
+
+    # Route le trafic directement vers les IPs des pods pour de meilleures performances
+    alb.ingress.kubernetes.io/target-type: ip
+
+spec:
+  rules:
+    - http:
+        paths:
+          # Route le trafic de "/ic-webapp" vers la page de portail
+          - path: /ic-webapp
+            pathType: Prefix
+            backend:
+              service:
+                name: ic-webapp
+                port:
+                  number: 8080
+          # Route le trafic commençant par "/pgadmin" vers le service pgAdmin
+          - path: /pgadmin
+            pathType: Prefix
+            backend:
+              service:
+                name: pg-admin
+                port:
+                  number: 5050
+          # Route tout le reste du trafic ("/") vers le service Odoo
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: odoo
+                port:
+                  number: 8069
