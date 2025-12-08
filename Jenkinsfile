@@ -1,14 +1,3 @@
-def cleanupDocker() {
-    sh '''
-    echo "🧹 Nettoyage Docker en cours..."
-    docker compose down --remove-orphans || true
-    docker ps -aq | xargs -r docker rm -f || true
-    docker volume prune -f || true
-    docker network prune -f || true
-    docker system prune -f || true
-    '''
-}
-
 pipeline {
     agent any
 
