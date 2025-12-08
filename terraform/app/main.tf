@@ -63,6 +63,7 @@ module "rds" {
   db_name                = "odoo" # Nom de la base de données initiale
   db_username            = "admin"
   db_password            = "password" # A remplacer par un secret
+  db_engine_version      = "16.3"   # Spécifie une version valide pour PostgreSQL
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
   db_vpc_security_group_ids = [module.rds_sg.security_group_id]
 }
