@@ -39,7 +39,6 @@ jobs:
           tags: ${{ env.DOCKERHUB_ID }}/${{ env.IMAGE_NAME }}:latest
           # Charge l'image dans le daemon Docker local pour les étapes suivantes
           load: true
-          no-cache: true
 
       - name: Scan image with Snyk
         run: |
