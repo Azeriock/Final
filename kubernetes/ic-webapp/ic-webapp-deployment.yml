@@ -18,7 +18,7 @@ spec:
         app: ic-webapp
     spec:
       containers:
-      - image: azeriock/ic-webapp:1.0
+      - image: azeriock/ic-webapp:latest
         name: ic-webapp
         env:
         - name: ODOO_URL

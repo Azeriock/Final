@@ -3,7 +3,7 @@ terraform {
     bucket                  = "terraform-bucket-loic"
     key                     = "loic-dev.tfstate"
     region                  = "us-east-1"
-    profile                 = "loic"
+#   profile                 = "loic"
     dynamodb_table          = "terraform-locks"
   }
   required_version = ">= 1.5.0"
@@ -22,5 +22,5 @@ terraform {
 
 provider "aws" {
   region  = var.aws_region
-  profile = "loic"
+# profile = "loic"
 }
