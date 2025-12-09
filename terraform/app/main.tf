@@ -80,7 +80,7 @@ module "eks" {
   access_entries = {
     cicd_runner = {
       principal_arn     = var.cicd_iam_role_arn
-      username          = "cicd-runner"
+      user_name          = "cicd-runner"
       kubernetes_groups = ["system:masters"] # Donne les droits d'administrateur
     }
   }
@@ -121,17 +121,16 @@ resource "kubernetes_config_map_v1" "odoo_config" {
 # ==============================================================================
 module "aws_load_balancer_controller_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.60.0" # Version récente et stable
+  version = "5.60.0"
 
   role_name_prefix = "alb-controller-"
-
-  # Attache la politique IAM nécessaire pour le contrôleur
   attach_load_balancer_controller_policy = true
 
   oidc_providers = {
-    # La méthode moderne consiste à utiliser l'URL du fournisseur OIDC comme clé.
-    # Le module s'occupe de retrouver l'ARN et de construire la politique de confiance.
-    (module.eks.cluster_oidc_issuer_url) = {
+    # Le nom "main" est arbitraire ici, mais le contenu est strict
+    main = {
+      # 🚨 OBLIGATOIRE : Vous devez fournir l'ARN explicitement
+      provider_arn               = module.eks.oidc_provider_arn
       namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
