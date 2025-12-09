@@ -43,10 +43,6 @@ module "rds_sg" {
   ]
 }
 
-# ==============================================================================
-# Base de données (RDS)
-# Déploie une instance de base de données PostgreSQL dans les subnets privés.
-# ==============================================================================
 resource "aws_db_subnet_group" "rds_subnet_group" {
   name       = "rds-subnet-group"
   subnet_ids = module.vpc.private_subnets
@@ -97,6 +93,11 @@ provider "kubernetes" {
   }
 }
 
+provider "helm" {
+  # Le fournisseur Helm hérite automatiquement de la configuration du fournisseur
+  # Kubernetes. Aucune configuration supplémentaire n'est nécessaire ici.
+}
+
 # ==============================================================================
 # Création de l'espace de noms Kubernetes
 # Crée l'espace de noms "ic-webapp" dans lequel les ressources de l'application
@@ -107,6 +108,63 @@ resource "kubernetes_namespace_v1" "app_namespace" {
     name = "ic-webapp"
   }
 }
+
+# ==============================================================================
+# AWS Load Balancer Controller - IAM Role
+# Crée le rôle IAM pour le contrôleur en utilisant le module Terraform AWS
+# dédié, qui gère la politique de confiance pour l'authentification OIDC (IRSA).
+# ==============================================================================
+module "lbc_iam_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.39" # Utilise une version récente et stable
+
+  role_name = "eks-lbc-role-${module.eks.cluster_name}"
+
+  # Attache automatiquement la politique managée par AWS pour le LBC.
+  attach_load_balancer_controller_policy = true
+
+  # Configure la relation de confiance avec le fournisseur OIDC du cluster EKS.
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+
+  tags = {
+    Name = "IAM role for AWS LBC on ${module.eks.cluster_name}"
+  }
+}
+
+# ==============================================================================
+# AWS Load Balancer Controller - Helm Chart
+# Déploie le contrôleur via sa charte Helm officielle.
+# Ce contrôleur est nécessaire pour provisionner des Ingress de type ALB.
+# ==============================================================================
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  version    = "1.7.2" # Correspond à la version v2.7.2 de l'application
+
+  depends_on = [module.lbc_iam_role]
+
+  # Utilise `values` et `yamlencode` pour une configuration plus propre et lisible.
+  values = [
+    yamlencode({
+      clusterName = module.eks.cluster_name
+      serviceAccount = {
+        create = true
+        name   = "aws-load-balancer-controller"
+        annotations = {
+          "eks.amazonaws.com/role-arn" = module.lbc_iam_role.iam_role_arn
+        }
+      }
+    })
+  ]
+}
+
 # ==============================================================================
 # Création du ConfigMap Odoo
 # Crée dynamiquement le ConfigMap pour Odoo en utilisant l'adresse de
