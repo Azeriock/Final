@@ -93,10 +93,10 @@ provider "kubernetes" {
   }
 }
 
-provider "helm" {
+#provider "helm" {
   # Le fournisseur Helm hérite automatiquement de la configuration du fournisseur
   # Kubernetes. Aucune configuration supplémentaire n'est nécessaire ici.
-}
+#}
 
 # ==============================================================================
 # Création de l'espace de noms Kubernetes
