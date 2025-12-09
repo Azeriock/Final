@@ -48,7 +48,6 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
-        working-directory: ./terraform/app
 
       - name: Configure kubectl for EKS
         run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
