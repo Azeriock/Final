@@ -19,6 +19,7 @@ module "eks" {
 
   # Contrôle l'accès public au point de terminaison du cluster.
   endpoint_public_access = true
+  endpoint_private_access = true
 
   # Active la gestion de l'AWS Load Balancer Controller comme un add-on EKS.
   # Le module créera automatiquement le rôle IAM nécessaire.
