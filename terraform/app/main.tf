@@ -63,7 +63,7 @@ module "rds" {
   db_name                = "odoo" # Nom de la base de données initiale
   db_username            = "admin"
   db_password            = "password" # A remplacer par un secret
-  db_engine_version      = "16.3"   # Spécifie une version valide pour PostgreSQL
+  db_engine_version      = "16.6"   # Spécifie une version valide pour PostgreSQL
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
   db_vpc_security_group_ids = [module.rds_sg.security_group_id]
 }
@@ -85,14 +85,16 @@ module "eks" {
 # Configure le fournisseur Kubernetes pour qu'il puisse interagir avec le
 # cluster EKS créé ci-dessus.
 # ==============================================================================
-data "aws_eks_cluster_auth" "eks_auth" {
-  name = module.eks.cluster_name
-}
 
 provider "kubernetes" {
   host                   = module.eks.cluster_endpoint
   cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-  token                  = data.aws_eks_cluster_auth.eks_auth.token
+
+  exec {
+    api_version = "client.authentication.k8s.io/v1beta1"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    command     = "aws"
+  }
 }
 
 # ==============================================================================
