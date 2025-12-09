@@ -47,7 +47,7 @@ jobs:
         working-directory: ./terraform/app
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -var="cicd_iam_role_arn=${{ secrets.AWS_IAM_ROLE_ARN }}"
         working-directory: ./terraform/app
 
       - name: Configure kubectl for EKS

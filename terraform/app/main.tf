@@ -74,34 +74,14 @@ module "eks" {
   cluster_name       = "main-cluster"
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
-}
 
-# ==============================================================================
-# Configuration Kubernetes
-# Configure le fournisseur Kubernetes pour qu'il puisse interagir avec le
-# cluster EKS créé ci-dessus.
-# ==============================================================================
-
-provider "kubernetes" {
-  host                   = module.eks.cluster_endpoint
-  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-
-  exec {
-    api_version = "client.authentication.k8s.io/v1beta1"
-    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-    command     = "aws"
-  }
-}
-
-provider "helm" {
-  kubernetes = {
-    host                   = module.eks.cluster_endpoint
-    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
-
-    exec = {
-      api_version = "client.authentication.k8s.io/v1beta1"
-      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
-      command     = "aws"
+  # Autorise le rôle IAM du pipeline CI/CD à administrer le cluster via les Access Entries.
+  # C'est la méthode moderne pour gérer les permissions d'accès au cluster.
+  access_entries = {
+    cicd_runner = {
+      principal_arn     = var.cicd_iam_role_arn
+      username          = "cicd-runner"
+      kubernetes_groups = ["system:masters"] # Donne les droits d'administrateur
     }
   }
 }
@@ -141,7 +121,7 @@ resource "kubernetes_config_map_v1" "odoo_config" {
 # ==============================================================================
 module "aws_load_balancer_controller_irsa" {
   source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
-  version = "5.28.0" # Version la plus récente
+  version = "5.60.0" # Version récente et stable
 
   role_name_prefix = "alb-controller-"
 
@@ -149,9 +129,9 @@ module "aws_load_balancer_controller_irsa" {
   attach_load_balancer_controller_policy = true
 
   oidc_providers = {
-    main = {
-      provider_arn = module.eks.oidc_provider_arn
-      # Le chart Helm déploie le service account dans kube-system par défaut
+    # La méthode moderne consiste à utiliser l'URL du fournisseur OIDC comme clé.
+    # Le module s'occupe de retrouver l'ARN et de construire la politique de confiance.
+    (module.eks.cluster_oidc_issuer_url) = {
       namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }

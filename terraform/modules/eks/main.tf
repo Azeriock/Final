@@ -17,6 +17,8 @@ module "eks" {
   vpc_id     = var.vpc_id
   subnet_ids = var.private_subnet_ids
 
+  access_entries = var.access_entries
+
   # Contrôle l'accès public au point de terminaison du cluster.
   endpoint_public_access = true
   endpoint_private_access = true
