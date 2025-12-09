@@ -24,9 +24,9 @@ module "eks" {
   # Active la gestion de l'AWS Load Balancer Controller comme un add-on EKS.
   # Le module créera automatiquement le rôle IAM nécessaire.
   addons = {
-    aws-load-balancer-controller = {
-      most_recent = true # Utilise la version la plus récente de l'add-on
-    },
+  aws-load-balancer-controller = {
+    addon_version = "v2.7.2-eksbuild.1"
+  },
     aws-ebs-csi-driver = {
       most_recent = true # Ajout du driver EBS CSI
     }
