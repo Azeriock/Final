@@ -93,10 +93,18 @@ provider "kubernetes" {
   }
 }
 
-#provider "helm" {
-  # Le fournisseur Helm hérite automatiquement de la configuration du fournisseur
-  # Kubernetes. Aucune configuration supplémentaire n'est nécessaire ici.
-#}
+provider "helm" {
+  kubernetes = {
+    host                   = module.eks.cluster_endpoint
+    cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+
+    exec = {
+      api_version = "client.authentication.k8s.io/v1beta1"
+      args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+      command     = "aws"
+    }
+  }
+}
 
 # ==============================================================================
 # Création de l'espace de noms Kubernetes
@@ -127,3 +135,59 @@ resource "kubernetes_config_map_v1" "odoo_config" {
   }
 }
 
+# ==============================================================================
+# IAM Role for Service Account (IRSA) pour AWS Load Balancer Controller
+# Crée un rôle IAM que le Service Account du Load Balancer Controller utilisera.
+# ==============================================================================
+module "aws_load_balancer_controller_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.28.0" # Version la plus récente
+
+  role_name_prefix = "alb-controller-"
+
+  # Attache la politique IAM nécessaire pour le contrôleur
+  attach_load_balancer_controller_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn = module.eks.oidc_provider_arn
+      # Le chart Helm déploie le service account dans kube-system par défaut
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
+    }
+  }
+
+  tags = {
+    Name = "iam-role-alb-controller"
+  }
+}
+
+# ==============================================================================
+# Helm Release: AWS Load Balancer Controller
+# Installe le contrôleur via Helm, en utilisant le rôle IAM créé ci-dessus.
+# ==============================================================================
+resource "helm_release" "aws_load_balancer_controller" {
+  name       = "aws-load-balancer-controller"
+  repository = "https://aws.github.io/eks-charts"
+  chart      = "aws-load-balancer-controller"
+  namespace  = "kube-system"
+  version    = "1.10.1" # Version la plus récente et stable
+
+  # Attend que le rôle IAM soit créé avant de tenter d'installer le chart
+  depends_on = [module.aws_load_balancer_controller_irsa]
+
+  # Regroupe toutes les valeurs pour une meilleure lisibilité.
+  values = [
+    yamlencode({
+      clusterName = module.eks.cluster_name
+      vpcId       = module.vpc.vpc_id
+      serviceAccount = {
+        create = true
+        name   = "aws-load-balancer-controller"
+        annotations = {
+          # Annotation pour lier le Service Account au rôle IAM (IRSA)
+          "eks.amazonaws.com/role-arn" = module.aws_load_balancer_controller_irsa.iam_role_arn
+        }
+      }
+    })
+  ]
+}
