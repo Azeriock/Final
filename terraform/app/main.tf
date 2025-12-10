@@ -74,6 +74,7 @@ module "eks" {
   cluster_name       = "main-cluster"
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnets
+  
 
   # Autorise le rôle IAM du pipeline CI/CD à administrer le cluster via les Access Entries.
   # C'est la méthode moderne pour gérer les permissions d'accès au cluster.
@@ -162,6 +163,9 @@ resource "helm_release" "aws_load_balancer_controller" {
 
   # Attend que le rôle IAM soit créé avant de tenter d'installer le chart
   depends_on = [module.aws_load_balancer_controller_irsa]
+  replace         = true  # Force la réutilisation du nom si conflit
+  atomic          = true # Si ça plante, ça annule tout automatiquement
+  cleanup_on_fail = true # Nettoie l'installation en cas d'échec
 
   # Regroupe toutes les valeurs pour une meilleure lisibilité.
   values = [
