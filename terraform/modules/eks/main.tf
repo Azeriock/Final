@@ -42,6 +42,20 @@ module "eks" {
       desired_size = var.node_group_desired_size
 
       instance_types = var.node_group_instance_types
+      iam_role_additional_policies = {
+        # 1. Obligatoire pour que le noeud rejoigne le cluster
+        AmazonEKSWorkerNodePolicy = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+        
+        # 2. Obligatoire pour la gestion des IPs (VPC CNI)
+        AmazonEKS_CNI_Policy = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
+        
+        # 3. Obligatoire pour télécharger les images Docker système
+        AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+        
+        # 4. LA CORRECTION DE VOTRE ERREUR SPECIFIQUE
+        # Permet à SSM de fonctionner et évite le message d'erreur que vous avez vu
+        AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+      }
     }
   }
 
