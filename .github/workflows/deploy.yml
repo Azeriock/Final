@@ -46,10 +46,6 @@ jobs:
         run: terraform init
         working-directory: ./terraform/app
 
-      - name: Cleanup old controller
-        run: |
-          helm uninstall aws-load-balancer-controller -n kube-system || true  
-
       - name: Terraform Apply
         run: terraform apply -auto-approve -var="cicd_iam_role_arn=${{ secrets.AWS_IAM_ROLE_ARN }}"
         working-directory: ./terraform/app

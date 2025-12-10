@@ -29,6 +29,19 @@ module "eks" {
 # aws-load-balancer-controller = {
 #   addon_version = "v2.7.2-eksbuild.1"
 # },
+    vpc-cni = {
+      most_recent = true
+      # Parfois nécessaire si vos subnets sont très sécurisés
+      configuration_values = jsonencode({
+        env = {
+          # Force le CNI à utiliser l'interface interne si besoin
+          AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"
+        }
+      })
+    }
+    coredns    = { most_recent = true }
+    kube-proxy = { most_recent = true }
+
     aws-ebs-csi-driver = {
       most_recent = true # Ajout du driver EBS CSI
       service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
@@ -52,8 +65,7 @@ module "eks" {
         # 3. Obligatoire pour télécharger les images Docker système
         AmazonEC2ContainerRegistryReadOnly = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
         
-        # 4. LA CORRECTION DE VOTRE ERREUR SPECIFIQUE
-        # Permet à SSM de fonctionner et évite le message d'erreur que vous avez vu
+        # Permet à SSM de fonctionner
         AmazonSSMManagedInstanceCore = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
       }
     }
