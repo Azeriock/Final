@@ -31,12 +31,12 @@ module "eks" {
 # },
     vpc-cni = {
       most_recent = true
+      resolve_conflicts_on_create = "OVERWRITE"
+      resolve_conflicts_on_update = "OVERWRITE"
     }
     coredns    = { most_recent = true }
     kube-proxy = { most_recent = true }
     # AJOUTEZ CETTE LIGNE : Cela force Terraform à écraser la config par défaut d'AWS si conflit
-    resolve_conflicts_on_create = "OVERWRITE"
-    resolve_conflicts_on_update = "OVERWRITE"
 
     aws-ebs-csi-driver = {
       most_recent = true # Ajout du driver EBS CSI
