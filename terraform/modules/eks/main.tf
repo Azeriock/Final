@@ -36,12 +36,6 @@ module "eks" {
     }
     coredns    = { most_recent = true }
     kube-proxy = { most_recent = true }
-    # AJOUTEZ CETTE LIGNE : Cela force Terraform à écraser la config par défaut d'AWS si conflit
-
-    aws-ebs-csi-driver = {
-      most_recent = true # Ajout du driver EBS CSI
-      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
-    }
   }
 
   eks_managed_node_groups = {

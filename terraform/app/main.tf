@@ -97,6 +97,24 @@ module "eks" {
   }
 }
 
+resource "aws_eks_addon" "ebs_csi" {
+  cluster_name             = module.eks.cluster_name
+  addon_name               = "aws-ebs-csi-driver"
+  addon_version            = null # null = utilise la version par défaut pour la version K8s
+  resolve_conflicts_on_create = "OVERWRITE" # Vital pour les recréations
+  resolve_conflicts_on_update = "OVERWRITE"
+
+  service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
+
+  # On force explicitement l'ordre :
+  # L'addon ne doit se lancer que si le cluster ET les nodes sont là
+  # (Les drivers ont besoin de nodes pour tourner)
+  depends_on = [
+    module.eks,
+    module.ebs_csi_irsa_role
+  ]
+}
+
 # ==============================================================================
 # Création de l'espace de noms Kubernetes
 # Crée l'espace de noms "ic-webapp" dans lequel les ressources de l'application
