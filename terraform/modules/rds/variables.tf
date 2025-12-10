@@ -12,13 +12,13 @@ variable "db_engine" {
 variable "db_engine_version" {
   description = "The engine version to use."
   type        = string
-  default     = "15.3"
+  default     = "16"
 }
 
 variable "db_major_engine_version" {
   description = "The major engine version to use."
   type        = string
-  default     = "15"
+  default     = "16"
 }
 
 variable "db_instance_class" {

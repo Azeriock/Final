@@ -31,6 +31,7 @@ module "eks" {
 # },
     aws-ebs-csi-driver = {
       most_recent = true # Ajout du driver EBS CSI
+      service_account_role_arn = module.ebs_csi_irsa_role.iam_role_arn
     }
   }
 
