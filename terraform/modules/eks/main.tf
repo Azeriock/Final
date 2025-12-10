@@ -31,16 +31,12 @@ module "eks" {
 # },
     vpc-cni = {
       most_recent = true
-      # Parfois nécessaire si vos subnets sont très sécurisés
-      configuration_values = jsonencode({
-        env = {
-          # Force le CNI à utiliser l'interface interne si besoin
-          AWS_VPC_K8S_CNI_EXTERNALSNAT = "true"
-        }
-      })
     }
     coredns    = { most_recent = true }
     kube-proxy = { most_recent = true }
+    # AJOUTEZ CETTE LIGNE : Cela force Terraform à écraser la config par défaut d'AWS si conflit
+    resolve_conflicts_on_create = "OVERWRITE"
+    resolve_conflicts_on_update = "OVERWRITE"
 
     aws-ebs-csi-driver = {
       most_recent = true # Ajout du driver EBS CSI
@@ -49,7 +45,7 @@ module "eks" {
   }
 
   eks_managed_node_groups = {
-    worker-v2 = {
+    worker-v3 = {
       min_size     = var.node_group_min_size
       max_size     = var.node_group_max_size
       desired_size = var.node_group_desired_size
