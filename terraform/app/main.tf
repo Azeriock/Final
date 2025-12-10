@@ -57,7 +57,7 @@ module "rds" {
 
   db_identifier          = "main-db"
   db_name                = "odoo" # Nom de la base de données initiale
-  db_username            = "admin"
+  db_username            = "loic"
   db_password            = "password" # A remplacer par un secret
   db_engine_version      = "16.6"   # Spécifie une version valide pour PostgreSQL
   db_subnet_group_name   = aws_db_subnet_group.rds_subnet_group.name
@@ -79,9 +79,18 @@ module "eks" {
   # C'est la méthode moderne pour gérer les permissions d'accès au cluster.
   access_entries = {
     cicd_runner = {
-      principal_arn     = var.cicd_iam_role_arn
-      user_name          = "cicd-runner"
-      kubernetes_groups = ["system:masters"] # Donne les droits d'administrateur
+      principal_arn = var.cicd_iam_role_arn
+      user_name     = "cicd-runner"
+
+      # On associe la politique d'admin officielle AWS
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = {
+            type = "cluster"
+          }
+        }
+      }
     }
   }
 }
