@@ -53,3 +53,25 @@ module "eks" {
     var.tags
   )
 }
+
+module "ebs_csi_irsa_role" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "5.60.0" # Même version que votre autre module IAM pour la cohérence
+
+  role_name_prefix = "ebs-csi-"
+  
+  # C'est ici que ça change : on active la politique spécifique à EBS
+  attach_ebs_csi_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      # ATTENTION : Le nom du Service Account est standardisé par l'addon AWS
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+
+  tags = {
+    Name = "iam-role-ebs-csi"
+  }
+}
