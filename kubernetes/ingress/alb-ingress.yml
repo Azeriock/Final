@@ -35,7 +35,7 @@ spec:
               service:
                 name: pg-admin
                 port:
-                  number: 5050
+                  number: 80
           # Route tout le reste du trafic ("/") vers le service Odoo
           - path: /
             pathType: Prefix

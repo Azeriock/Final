@@ -12,5 +12,5 @@ spec:
     app: pg-admin
   ports:
     - protocol: TCP
-      port: 5050
+      port: 80
       targetPort: 80
