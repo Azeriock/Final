@@ -21,14 +21,17 @@ spec:
         name: odoo
         envFrom:
         - configMapRef:
-            name: odoo-config
+          name: odoo-config
         env:
         - name: PGDATABASE
           value: "odoo"
         - name: PGSSLMODE
           value: "require"
         - name: PASSWORD
-          value: "password"
+          valueFrom:
+            secretKeyRef:
+              name: odoo
+              key: PASSWORD
         ports:
         - containerPort: 8069
           name: odoo
