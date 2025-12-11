@@ -16,6 +16,10 @@ spec:
       labels:
         app: pg-admin
     spec:
+      securityContext:
+        fsGroup: 5050
+        runAsUser: 5050
+        runAsGroup: 5050
       containers:
       - image: dpage/pgadmin4
         name: pg-admin
