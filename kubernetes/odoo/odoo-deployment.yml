@@ -21,7 +21,7 @@ spec:
         name: odoo
         envFrom:
         - configMapRef:
-          name: odoo-config
+            name: odoo-config
         env:
         - name: PGDATABASE
           value: "odoo"
