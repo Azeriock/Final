@@ -80,6 +80,17 @@ module "eks" {
   # Autorise le rôle IAM du pipeline CI/CD à administrer le cluster via les Access Entries.
   # C'est la méthode moderne pour gérer les permissions d'accès au cluster.
   access_entries = {
+    mon_acces_perso = {
+      # COLLEZ ICI L'ARN RÉCUPÉRÉ À L'ÉTAPE 1
+      principal_arn = "arn:aws:sts::169332976667:assumed-role/AWSReservedSSO_PowerUserAccess_41a1a8fb17b69510/loic"
+
+      policy_associations = {
+        admin = {
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          access_scope = { type = "cluster" }
+        }
+      }
+    }
     cicd_runner = {
       principal_arn = var.cicd_iam_role_arn
       user_name     = "cicd-runner"
