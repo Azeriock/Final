@@ -20,10 +20,11 @@ spec:
         fsGroup: 101        # Force le volume à appartenir au groupe 101
         runAsUser: 101      # Force le conteneur à tourner en utilisateur 101
         runAsGroup: 101     # Force le conteneur à tourner en groupe 101
-        
+
       containers:
       - image: odoo
         name: odoo
+        args: ["-i", "base"]
         envFrom:
         - configMapRef:
             name: odoo-config
