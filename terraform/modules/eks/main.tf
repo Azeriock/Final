@@ -26,16 +26,14 @@ module "eks" {
   # Active la gestion de l'AWS Load Balancer Controller comme un add-on EKS.
   # Le module créera automatiquement le rôle IAM nécessaire.
   addons = {
-# aws-load-balancer-controller = {
-#   addon_version = "v2.7.2-eksbuild.1"
-# },
-    vpc-cni = {
-      most_recent = true
-      resolve_conflicts_on_create = "OVERWRITE"
-      resolve_conflicts_on_update = "OVERWRITE"
+    vpc-cni                = {
+      before_compute = true
     }
-    coredns    = { most_recent = true }
-    kube-proxy = { most_recent = true }
+    coredns                = {}
+    eks-pod-identity-agent = {
+      before_compute = true
+    }
+    kube-proxy             = {}
   }
 
   eks_managed_node_groups = {
