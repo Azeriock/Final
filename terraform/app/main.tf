@@ -81,8 +81,7 @@ module "eks" {
   # C'est la méthode moderne pour gérer les permissions d'accès au cluster.
   access_entries = {
     mon_acces_perso = {
-      # COLLEZ ICI L'ARN RÉCUPÉRÉ À L'ÉTAPE 1
-      principal_arn = "arn:aws:sts::169332976667:assumed-role/AWSReservedSSO_PowerUserAccess_41a1a8fb17b69510/loic"
+      principal_arn = "arn:aws:iam::169332976667:role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_PowerUserAccess_41a1a8fb17b69510"
 
       policy_associations = {
         admin = {
