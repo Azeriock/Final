@@ -12,7 +12,7 @@ module "rds" {
   version = "~> 6.13" # Pensez à fixer la version pour la stabilité
 
   identifier = var.db_identifier
-
+  apply_immediately = true
   engine               = var.db_engine
   engine_version       = var.db_engine_version
   major_engine_version = var.db_major_engine_version
