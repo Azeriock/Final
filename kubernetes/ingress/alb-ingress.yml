@@ -13,6 +13,9 @@ metadata:
     # Route le trafic directement vers les IPs des pods pour de meilleures performances
     alb.ingress.kubernetes.io/target-type: ip
 
+    # FORCE L'OUVERTURE AUTOMATIQUE DES PORTS (5050, 8069, etc.)
+    alb.ingress.kubernetes.io/manage-backend-security-group-rules: "true"
+
 spec:
   rules:
     - http:

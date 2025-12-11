@@ -36,6 +36,12 @@ module "eks" {
     kube-proxy             = {}
   }
 
+  node_security_group_tags = {
+    # Cette étiquette dit : "Ce Security Group appartient au cluster main-cluster"
+    # Le contrôleur la cherche pour savoir où ajouter les règles.
+    "kubernetes.io/cluster/${var.cluster_name}" = "owned"
+  }
+
   eks_managed_node_groups = {
     main = {
       min_size     = var.node_group_min_size

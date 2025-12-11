@@ -23,6 +23,8 @@ spec:
         - configMapRef:
             name: odoo-config
         env:
+        - name: PGSSLMODE
+          value: "require"
         - name: PASSWORD
           valueFrom:
             secretKeyRef:
