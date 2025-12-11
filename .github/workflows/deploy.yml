@@ -47,13 +47,13 @@ jobs:
         working-directory: ./terraform/app
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -target=module.eks -var="cicd_iam_role_arn=${{ secrets.AWS_IAM_ROLE_ARN }}"
+        run: terraform apply -auto-approve -var="cicd_iam_role_arn=${{ secrets.AWS_IAM_ROLE_ARN }}"
         working-directory: ./terraform/app
 
-#      - name: Configure kubectl for EKS
-#        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
+      - name: Configure kubectl for EKS
+        run: aws eks update-kubeconfig --name ${{ env.EKS_CLUSTER_NAME }} --region ${{ env.AWS_REGION }}
 
-#      - name: Deploy Kubernetes Manifests
- #       run: |
-#          echo "Applying all Kubernetes manifests with Kustomize..."
-#          kubectl apply -k ./kubernetes
+      - name: Deploy Kubernetes Manifests
+        run: |
+          echo "Applying all Kubernetes manifests with Kustomize..."
+          kubectl apply -k ./kubernetes
