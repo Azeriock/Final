@@ -248,7 +248,7 @@ module "ssl_certificate" {
 data "aws_lb" "ingress_alb" {
   tags = {
     # C'est la signature automatique du contrôleur AWS
-    "ingress.k8s.aws/stack" = "ic-webapp/main-ingress"
+    "ingress.k8s.aws/stack" = "ic-webapp/ic-webapp-ingress"
   }
 }
 
