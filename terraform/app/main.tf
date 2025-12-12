@@ -243,3 +243,36 @@ module "ssl_certificate" {
   domain_name = "nuages.click"
   environment = "prod"
 }
+
+# On demande à AWS : "Trouve-moi le Load Balancer qui correspond à mon Ingress"
+data "aws_lb" "ingress_alb" {
+  tags = {
+    # C'est la signature automatique du contrôleur AWS
+    "ingress.k8s.aws/stack" = "ic-webapp/main-ingress"
+  }
+}
+
+locals {
+  # Ajoutez simplement un nom ici pour créer un nouveau sous-domaine !
+  app_subdomains = toset([
+    "odoo",
+    "pgadmin",
+    "ic-webapp"
+    
+  ])
+}
+
+resource "aws_route53_record" "apps" {
+  # on boucle sur la liste
+  for_each = local.app_subdomains
+  zone_id = data.aws_route53_zone.nuages.zone_id
+  name    = "${each.key}.nuages.click" 
+  type    = "A"
+
+  alias {
+    # On utilise toujours le même Load Balancer (récupéré dynamiquement)
+    name                   = data.aws_lb.ingress_alb.dns_name
+    zone_id                = data.aws_lb.ingress_alb.zone_id
+    evaluate_target_health = true
+  }
+}
