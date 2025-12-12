@@ -252,6 +252,10 @@ data "aws_lb" "ingress_alb" {
   }
 }
 
+data "aws_route53_zone" "nuages" {
+  name = "nuages.click"
+}
+
 locals {
   # Ajoutez simplement un nom ici pour créer un nouveau sous-domaine !
   app_subdomains = toset([
