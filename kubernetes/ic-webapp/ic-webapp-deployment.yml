@@ -24,7 +24,7 @@ spec:
         - name: ODOO_URL
           value: "https://odoo.nuages.click"
         - name: PGADMIN_URL
-          value: https://pgadmin.nuages.click"
+          value: "https://pgadmin.nuages.click"
         ports:
         - containerPort: 8080
           name: ic-webapp
