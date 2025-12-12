@@ -234,3 +234,12 @@ resource "helm_release" "aws_load_balancer_controller" {
     })
   ]
 }
+
+# Appel du module local
+module "ssl_certificate" {
+  source = "./modules/certificate"
+
+  # On passe les variables
+  domain_name = "nuages.click"
+  environment = "prod"
+}
