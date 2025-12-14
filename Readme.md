@@ -1,7 +1,7 @@
 # 🌐 Hybrid DevOps Project: Cloud-Native (AWS EKS) & On-Premise
 
 ## 📝 Présentation du Projet
-Ce projet démontre une maîtrise complète du cycle de vie DevOps à travers une approche **hybride**. Il permet de déployer la même stack applicative (ERP Odoo v17 + PostgreSQL + WebApp) sur deux environnements radicalement différents :
+Ce projet démontre une maîtrise complète du cycle de vie DevOps à travers une approche **hybride**. Il permet de déployer la même stack applicative (ERP Odoo v17 + PostgreSQL + WebApp: ic-webapp et pgadmin) sur deux environnements radicalement différents :
 
 1.  **Option A (Cloud-Native) :** Une infrastructure immuable, scalable et managée sur **AWS EKS**, pilotée par Terraform et GitHub Actions.
 2.  **Option B (On-Premise) :** Une infrastructure traditionnelle sur serveurs Linux, configurée et maintenue via **Ansible** et **Jenkins**.
@@ -20,13 +20,13 @@ L'infrastructure est entièrement définie en code (IaC) :
 * **Cluster EKS :** Control Plane managé et Node Groups en Auto-Scaling (ASG) pour absorber la charge.
 * **Load Balancing :** AWS Application Load Balancer (ALB) géré dynamiquement par le contrôleur Ingress Kubernetes.
 * **Données :** Base de données **Amazon RDS PostgreSQL** (séparée du cluster pour la persistance) et stockage EBS pour les fichiers Odoo.
-* **DNS :** Gestion automatique des enregistrements via Route 53 (`odoo.nuages.click`).
+* **DNS :** Gestion DNS via Route 53 (`nuages.click`).
 
 ### 🔄 Pipeline CI/CD (GitHub Actions)
 Le pipeline Cloud utilise l'authentification moderne **OpenID Connect (OIDC)** pour supprimer le besoin de clés d'accès longue durée.
 
 1.  **Continuous Integration (`ci.yml`) :**
-    * Build Docker multi-stage.
+    * Build Docker.
     * **Scan de sécurité Snyk** de l'image.
     * Tests de santé du conteneur.
     * Push vers Docker Hub.
@@ -66,4 +66,5 @@ Quel que soit l'environnement, la sécurité est au cœur du projet :
     * *Cloud :* AWS Secrets Manager & GitHub Secrets.
     * *On-Prem :* Ansible Vault pour chiffrer les variables sensibles dans le repo git.
 * **Isolation :** Les builds tournent dans des conteneurs éphémères pour ne pas polluer les environnements de build.
+
 
