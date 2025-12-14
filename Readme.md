@@ -1,3 +1,6 @@
+[![CI - Build, Scan, Test and Push Docker Image](https://github.com/Azeriock/Projet-DevOps/actions/workflows/ci.yml/badge.svg)](https://github.com/Azeriock/Projet-DevOps/actions/workflows/ci.yml)
+[![CD - Deploy to EKS](https://github.com/Azeriock/Projet-DevOps/actions/workflows/deploy.yml/badge.svg)](https://github.com/Azeriock/Projet-DevOps/actions/workflows/deploy.yml)
+
 # 🌐 Hybrid DevOps Project: Cloud-Native (AWS EKS) & On-Premise
 
 ## 📝 Présentation du Projet
@@ -66,5 +69,6 @@ Quel que soit l'environnement, la sécurité est au cœur du projet :
     * *Cloud :* AWS Secrets Manager & GitHub Secrets.
     * *On-Prem :* Ansible Vault pour chiffrer les variables sensibles dans le repo git.
 * **Isolation :** Les builds tournent dans des conteneurs éphémères pour ne pas polluer les environnements de build.
+
 
 
