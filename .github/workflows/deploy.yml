@@ -1,13 +1,15 @@
 name: CD - Deploy to EKS
 
 on:
+  workflow_dispatch:
+#on:
   # Se déclenche à la fin de l'exécution du workflow de CI
-  workflow_run:
+#  workflow_run:
     # Nom du workflow de CI (défini dans le fichier ci.yml)
-    workflows: ["CI - Build, Scan, Test and Push Docker Image"]
-    types:
-      - completed
-    branches: [main]
+#    workflows: ["CI - Build, Scan, Test and Push Docker Image"]
+#    types:
+#      - completed
+#    branches: [main]
 
 env:
   # Doit correspondre à la région de votre backend S3 et de votre cluster
